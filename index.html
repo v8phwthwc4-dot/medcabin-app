@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCabin - Sauvez les gens, laissez-nous le reste</title>
+    <meta name="description" content="Plateforme de gestion de cabinet médical. Simplifiez votre quotidien, concentrez-vous sur vos patients.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <span class="logo-icon">⚕️</span>
+                    <span class="logo-text">MedCabin</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#fonctionnalites">Fonctionnalités</a>
+                    <a href="#tarifs">Tarifs</a>
+                    <a href="#contact">Contact</a>
+                    <button class="btn btn-primary" onclick="scrollToForm()">Essai gratuit</button>
+                </div>
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">🚀 Nouveau : Prise de RDV en ligne pour vos patients</div>
+                <h1 class="hero-title">
+                    Sauvez les gens,<br>
+                    <span class="gradient-text">laissez-nous le reste</span>
+                </h1>
+                <p class="hero-subtitle">
+                    La plateforme qui simplifie la gestion de votre cabinet médical. 
+                    Gagnez 2 heures par jour et concentrez-vous sur ce qui compte : vos patients.
+                </p>
+                <div class="hero-cta">
+                    <button class="btn btn-primary btn-large" onclick="scrollToForm()">
+                        Commencer l'essai gratuit
+                        <span class="btn-arrow">→</span>
+                    </button>
+                    <button class="btn btn-secondary btn-large" onclick="showDemo()">
+                        Voir la démo
+                        <span class="btn-icon">▶</span>
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number">40%</div>
+                        <div class="stat-label">Temps économisé</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Médecins conquis</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">99.9%</div>
+                        <div class="stat-label">Disponibilité</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem-section">
+        <div class="container">
+            <h2 class="section-title">Les défis quotidiens des médecins</h2>
+            <p class="section-subtitle">Nous comprenons vos frustrations</p>
+            
+            <div class="problems-grid">
+                <div class="problem-card">
+                    <div class="problem-icon">⏰</div>
+                    <h3>40% du temps perdu</h3>
+                    <p>Les tâches administratives vous volent un temps précieux que vous devriez consacrer à vos patients.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">📋</div>
+                    <h3>Dossiers désorganisés</h3>
+                    <p>Papiers perdus, informations dispersées, risque d'erreurs médicales. Le système papier n'est plus viable.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">👻</div>
+                    <h3>No-show fréquents</h3>
+                    <p>15-20% de vos patients ne viennent pas à leur RDV sans prévenir. C'est du temps et de l'argent perdus.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">💸</div>
+                    <h3>Facturation chronophage</h3>
+                    <p>Suivre les paiements, gérer les mutuelles, relancer les impayés... Un cauchemar administratif.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="solution-section">
+        <div class="container">
+            <h2 class="section-title">MedCabin : Votre assistant digital</h2>
+            <p class="section-subtitle">Tout ce dont vous avez besoin, en un seul endroit</p>
+            
+            <div class="solutions-grid">
+                <div class="solution-card">
+                    <div class="solution-icon">✅</div>
+                    <h3>Gestion automatisée</h3>
+                    <p>Rendez-vous, rappels SMS, confirmations... Tout se fait automatiquement pendant que vous consultez.</p>
+                </div>
+                <div class="solution-card">
+                    <div class="solution-icon">🔒</div>
+                    <h3>Dossiers sécurisés</h3>
+                    <p>Tous vos dossiers médicaux centralisés, chiffrés, accessibles en 1 clic. Conforme RGPD.</p>
+                </div>
+                <div class="solution-card">
+                    <div class="solution-icon">💰</div>
+                    <h3>Facturation simplifiée</h3>
+                    <p>Génération automatique, télétransmission aux caisses, suivi des paiements. Plus besoin d'y penser.</p>
+                </div>
+                <div class="solution-card">
+                    <div class="solution-icon">📊</div>
+                    <h3>Statistiques en temps réel</h3>
+                    <p>Visualisez votre activité, vos revenus, vos patients. Prenez de meilleures décisions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="fonctionnalites" class="features-section">
+        <div class="container">
+            <h2 class="section-title">Fonctionnalités complètes</h2>
+            <p class="section-subtitle">Tout pour gérer votre cabinet efficacement</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3>Agenda intelligent</h3>
+                    <p>Calendrier interactif, prise de RDV en ligne 24/7, rappels SMS automatiques, gestion des urgences.</p>
+                    <ul class="feature-list">
+                        <li>✓ Vue jour / semaine / mois</li>
+                        <li>✓ Rappels automatiques (SMS + Email)</li>
+                        <li>✓ Réduction no-show de 60%</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Dossiers patients</h3>
+                    <p>Fiche complète, historique médical, antécédents, allergies, documents, courbes de croissance.</p>
+                    <ul class="feature-list">
+                        <li>✓ Recherche instantanée</li>
+                        <li>✓ Historique complet</li>
+                        <li>✓ Import/Export CSV</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Ordonnances électroniques</h3>
+                    <p>Création rapide, base médicaments, vérification interactions, génération PDF, signature électronique.</p>
+                    <ul class="feature-list">
+                        <li>✓ Templates personnalisables</li>
+                        <li>✓ Base médicaments intégrée</li>
+                        <li>✓ Envoi direct pharmacie (futur)</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>Facturation automatique</h3>
+                    <p>Génération factures, télétransmission, suivi paiements, exports comptables, gestion tiers-payant.</p>
+                    <ul class="feature-list">
+                        <li>✓ Télétransmission caisses</li>
+                        <li>✓ Relances automatiques</li>
+                        <li>✓ Statistiques revenus</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Statistiques avancées</h3>
+                    <p>Dashboard temps réel, graphiques, rapports d'activité, exports Excel/PDF, KPIs cabinet.</p>
+                    <ul class="feature-list">
+                        <li>✓ Tableau de bord visuel</li>
+                        <li>✓ Analyse par pathologie</li>
+                        <li>✓ Prévisions de revenus</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Sécurité maximale</h3>
+                    <p>Cryptage AES-256, hébergement certifié HDS, sauvegardes quotidiennes, conformité RGPD totale.</p>
+                    <ul class="feature-list">
+                        <li>✓ Données chiffrées</li>
+                        <li>✓ Backup automatique</li>
+                        <li>✓ Certification HDS</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="tarifs" class="pricing-section">
+        <div class="container">
+            <h2 class="section-title">Tarifs transparents</h2>
+            <p class="section-subtitle">Choisissez la formule adaptée à votre cabinet</p>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Essentiel</h3>
+                        <div class="price">
+                            <span class="currency">600</span>
+                            <span class="period">DH/mois</span>
+                        </div>
+                        <p class="pricing-desc">Pour les cabinets qui démarrent</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ Gestion rendez-vous illimitée</li>
+                        <li>✓ Patients illimités</li>
+                        <li>✓ Dossiers médicaux électroniques</li>
+                        <li>✓ Facturation simple</li>
+                        <li>✓ Support par email</li>
+                        <li>✓ 100 SMS/mois inclus</li>
+                    </ul>
+                    <button class="btn btn-secondary btn-block" onclick="scrollToForm()">Commencer</button>
+                </div>
+                
+                <div class="pricing-card pricing-popular">
+                    <div class="popular-badge">Populaire</div>
+                    <div class="pricing-header">
+                        <h3>Professionnel</h3>
+                        <div class="price">
+                            <span class="currency">1200</span>
+                            <span class="period">DH/mois</span>
+                        </div>
+                        <p class="pricing-desc">Pour les cabinets établis</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ Tout de la formule Essentiel</li>
+                        <li>✓ Ordonnances électroniques</li>
+                        <li>✓ Télétransmission caisses</li>
+                        <li>✓ Statistiques avancées</li>
+                        <li>✓ 200 SMS/mois inclus</li>
+                        <li>✓ Support prioritaire</li>
+                        <li>✓ Formation personnalisée</li>
+                    </ul>
+                    <button class="btn btn-primary btn-block" onclick="scrollToForm()">Commencer</button>
+                </div>
+                
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Cabinet</h3>
+                        <div class="price">
+                            <span class="currency">2000</span>
+                            <span class="period">DH/mois</span>
+                        </div>
+                        <p class="pricing-desc">Pour les groupes médicaux</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ Tout de la formule Pro</li>
+                        <li>✓ Multi-utilisateurs (5 max)</li>
+                        <li>✓ SMS illimités</li>
+                        <li>✓ API & Intégrations</li>
+                        <li>✓ Statistiques cabinet</li>
+                        <li>✓ Support téléphonique 24/7</li>
+                        <li>✓ Account manager dédié</li>
+                    </ul>
+                    <button class="btn btn-secondary btn-block" onclick="scrollToForm()">Nous contacter</button>
+                </div>
+            </div>
+            
+            <div class="pricing-guarantee">
+                <p>✨ <strong>Essai gratuit 30 jours</strong> • Sans carte bancaire • Annulation à tout moment</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section" id="signup">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Prêt à transformer votre cabinet ?</h2>
+                <p>Rejoignez les centaines de médecins qui ont déjà fait le choix de la simplicité</p>
+                
+                <form class="signup-form" onsubmit="handleSignup(event)">
+                    <div class="form-row">
+                        <input type="text" placeholder="Votre nom complet" required class="form-input">
+                        <input type="email" placeholder="Email professionnel" required class="form-input">
+                    </div>
+                    <div class="form-row">
+                        <input type="tel" placeholder="Téléphone" required class="form-input">
+                        <select class="form-input" required>
+                            <option value="">Ville</option>
+                            <option value="fes">Fès</option>
+                            <option value="casablanca">Casablanca</option>
+                            <option value="rabat">Rabat</option>
+                            <option value="marrakech">Marrakech</option>
+                            <option value="tanger">Tanger</option>
+                            <option value="agadir">Agadir</option>
+                            <option value="meknes">Meknès</option>
+                            <option value="oujda">Oujda</option>
+                            <option value="autre">Autre</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-large btn-block">
+                        Démarrer l'essai gratuit 30 jours
+                        <span class="btn-arrow">→</span>
+                    </button>
+                    <p class="form-note">Aucune carte bancaire requise • Installation en 5 minutes</p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h2>Contactez-nous</h2>
+                    <p>Une question ? Notre équipe est là pour vous accompagner</p>
+                    
+                    <div class="contact-methods">
+                        <div class="contact-method">
+                            <div class="contact-icon">📍</div>
+                            <div>
+                                <h4>Adresse</h4>
+                                <p>Fès, Maroc</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method">
+                            <div class="contact-icon">📞</div>
+                            <div>
+                                <h4>Téléphone</h4>
+                                <p>0634602548</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method">
+                            <div class="contact-icon">📧</div>
+                            <div>
+                                <h4>Email</h4>
+                                <p>abdellahdefaa23@gmail.com</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method">
+                            <div class="contact-icon">⏰</div>
+                            <div>
+                                <h4>Horaires</h4>
+                                <p>Lun-Ven : 9h-18h</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form-wrapper">
+                    <form class="contact-form" onsubmit="handleContact(event)">
+                        <input type="text" placeholder="Nom complet" required class="form-input">
+                        <input type="email" placeholder="Email" required class="form-input">
+                        <input type="tel" placeholder="Téléphone" class="form-input">
+                        <textarea placeholder="Votre message" rows="4" required class="form-input"></textarea>
+                        <button type="submit" class="btn btn-primary btn-block">Envoyer le message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <span class="logo-icon">⚕️</span>
+                        <span class="logo-text">MedCabin</span>
+                    </div>
+                    <p>Sauvez les gens, laissez-nous le reste</p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Produit</h4>
+                        <a href="#fonctionnalites">Fonctionnalités</a>
+                        <a href="#tarifs">Tarifs</a>
+                        <a href="#" onclick="showDemo()">Démo</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Entreprise</h4>
+                        <a href="#contact">Contact</a>
+                        <a href="#">À propos</a>
+                        <a href="#">Blog</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Légal</h4>
+                        <a href="#">CGU</a>
+                        <a href="#">Confidentialité</a>
+                        <a href="#">RGPD</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 MedCabin. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
