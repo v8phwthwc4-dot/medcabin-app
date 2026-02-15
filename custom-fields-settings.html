@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Champs - MedCabin</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="margin:0;font-family:'Inter',sans-serif;background:#f8fafc">
+    <div style="max-width:1000px;margin:0 auto;padding:2rem">
+        <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:0.5rem;color:#64748b;text-decoration:none;margin-bottom:2rem;font-weight:500">← Retour au tableau de bord</a>
+        <h1 style="font-size:2rem;font-weight:800;margin-bottom:0.5rem">⚙️ Configuration des champs personnalisés</h1>
+        <p style="color:#64748b;margin-bottom:2rem">Créez des champs supplémentaires pour vos fiches patients</p>
+        
+        <div style="background:white;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05);padding:2rem;margin-bottom:2rem">
+            <h3 style="margin-bottom:1rem">➕ Ajouter un champ</h3>
+            <form id="add-field-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1rem">
+                <input type="text" id="field_label" placeholder="Libellé (ex: Groupe sanguin)" required style="padding:0.75rem;border:2px solid #e2e8f0;border-radius:0.5rem">
+                <select id="field_type" required style="padding:0.75rem;border:2px solid #e2e8f0;border-radius:0.5rem">
+                    <option value="">Type de champ</option>
+                    <option value="text">Texte court</option>
+                    <option value="textarea">Texte long</option>
+                    <option value="number">Nombre</option>
+                    <option value="boolean">Oui/Non</option>
+                    <option value="select">Liste déroulante</option>
+                    <option value="date">Date</option>
+                </select>
+                <button type="submit" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer">Ajouter</button>
+            </form>
+        </div>
+        
+        <div id="fields-list" style="background:white;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05);padding:2rem">
+            <h3 style="margin-bottom:1rem">📋 Champs configurés</h3>
+            <div id="fields-container">Chargement...</div>
+        </div>
+    </div>
+    <script type="module">
+        import { getCurrentUser } from './supabase-client.js'
+        import { getCustomFields, createCustomField, deleteCustomField, generateFieldName } from './custom-fields-api.js'
+        
+        async function loadFields() {
+            const result = await getCustomFields()
+            const container = document.getElementById('fields-container')
+            
+            if (result.success && result.fields.length > 0) {
+                container.innerHTML = result.fields.map(field => `
+                    <div style="padding:1rem;border:1px solid #e2e8f0;border-radius:0.5rem;margin-bottom:0.5rem;display:flex;justify-content:space-between;align-items:center">
+                        <div>
+                            <strong>${field.field_label}</strong>
+                            <span style="color:#64748b;margin-left:1rem">(${field.field_type})</span>
+                        </div>
+                        <button onclick="deleteField('${field.id}')" style="padding:0.5rem 1rem;background:#fee2e2;color:#991b1b;border:none;border-radius:0.375rem;cursor:pointer">🗑️ Supprimer</button>
+                    </div>
+                `).join('')
+            } else {
+                container.innerHTML = '<p style="text-align:center;color:#64748b">Aucun champ personnalisé configuré</p>'
+            }
+        }
+        
+        document.getElementById('add-field-form').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const label = document.getElementById('field_label').value
+            const type = document.getElementById('field_type').value
+            
+            const result = await createCustomField({
+                field_name: generateFieldName(label),
+                field_label: label,
+                field_type: type,
+                options: [],
+                is_required: false,
+                display_order: 0
+            })
+            
+            if (result.success) {
+                alert('✅ Champ ajouté avec succès!')
+                e.target.reset()
+                loadFields()
+            } else {
+                alert('❌ Erreur: ' + result.error)
+            }
+        })
+        
+        window.deleteField = async (id) => {
+            if (confirm('Supprimer ce champ?')) {
+                const result = await deleteCustomField(id)
+                if (result.success) {
+                    alert('✅ Champ supprimé')
+                    loadFields()
+                }
+            }
+        }
+        
+        getCurrentUser().then(user => {
+            if (user) loadFields()
+            else window.location.href = 'login.html'
+        })
+    </script>
+</body>
+</html>
