@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - MedCabin</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+            padding: 3rem;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .auth-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .form-input-wrapper {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-input.error {
+            border-color: #ef4444;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-checkbox input {
+            width: 1.125rem;
+            height: 1.125rem;
+            cursor: pointer;
+        }
+
+        .form-checkbox label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: -1rem;
+        }
+
+        .forgot-password a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .submit-btn {
+            padding: 1rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .auth-divider span {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .auth-footer p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">⚕️</div>
+                <h1 class="auth-title">Connexion</h1>
+                <p class="auth-subtitle">Accédez à votre espace MedCabin</p>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <form class="auth-form" id="login-form">
+                <div class="form-group">
+                    <label class="form-label" for="email">Adresse email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email"
+                        class="form-input" 
+                        placeholder="votre@email.com"
+                        required
+                        autocomplete="email"
+                    >
+                    <span class="error-message" id="email-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Mot de passe</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password"
+                        class="form-input" 
+                        placeholder="••••••••"
+                        required
+                        autocomplete="current-password"
+                    >
+                    <span class="error-message" id="password-error"></span>
+                </div>
+
+                <div class="form-checkbox">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Se souvenir de moi</label>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="#" id="forgot-password-link">Mot de passe oublié ?</a>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submit-btn">
+                    <span id="btn-text">Se connecter</span>
+                    <span id="btn-spinner" style="display: none;">
+                        <span class="loading-spinner"></span>
+                    </span>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Pas encore de compte ? <a href="signup.html">Créer un compte</a></p>
+                <p style="margin-top: 1rem;"><a href="index.html">← Retour à l'accueil</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { signIn } from './supabase-client.js'
+
+        const form = document.getElementById('login-form')
+        const submitBtn = document.getElementById('submit-btn')
+        const btnText = document.getElementById('btn-text')
+        const btnSpinner = document.getElementById('btn-spinner')
+        const alertContainer = document.getElementById('alert-container')
+
+        // Fonction pour afficher une alerte
+        function showAlert(message, type = 'error') {
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `
+            setTimeout(() => {
+                alertContainer.innerHTML = ''
+            }, 5000)
+        }
+
+        // Gestion du formulaire
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault()
+
+            const email = document.getElementById('email').value
+            const password = document.getElementById('password').value
+
+            // Désactiver le bouton et afficher le spinner
+            submitBtn.disabled = true
+            btnText.style.display = 'none'
+            btnSpinner.style.display = 'inline-block'
+
+            try {
+                const result = await signIn(email, password)
+
+                if (result.success) {
+                    showAlert('Connexion réussie ! Redirection...', 'success')
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html'
+                    }, 1000)
+                } else {
+                    showAlert(result.error || 'Erreur de connexion. Vérifiez vos identifiants.')
+                    submitBtn.disabled = false
+                    btnText.style.display = 'inline-block'
+                    btnSpinner.style.display = 'none'
+                }
+            } catch (error) {
+                showAlert('Une erreur est survenue. Réessayez.')
+                submitBtn.disabled = false
+                btnText.style.display = 'inline-block'
+                btnSpinner.style.display = 'none'
+            }
+        })
+
+        // Gestion mot de passe oublié
+        document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+            e.preventDefault()
+            const email = prompt('Entrez votre adresse email pour réinitialiser votre mot de passe:')
+            if (email) {
+                showAlert('Un email de réinitialisation a été envoyé (fonctionnalité à venir)', 'success')
+            }
+        })
+
+        // Vérifier si déjà connecté
+        import { getCurrentUser } from './supabase-client.js'
+        
+        getCurrentUser().then(user => {
+            if (user) {
+                window.location.href = 'dashboard.html'
+            }
+        })
+    </script>
+</body>
+</html>
