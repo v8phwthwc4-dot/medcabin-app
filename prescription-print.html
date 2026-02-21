@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordonnance - Impression</title>
+    <style>
+        @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .prescription-page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 0 auto;
+            padding: 20mm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            margin-bottom: 30px;
+        }
+        
+        .doctor-info {
+            flex: 1;
+        }
+        
+        .doctor-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        
+        .doctor-title {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+        
+        .doctor-contact {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+        .logo {
+            font-size: 48px;
+            color: #667eea;
+        }
+        
+        .prescription-title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .patient-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .patient-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #475569;
+        }
+        
+        .info-value {
+            color: #1e293b;
+        }
+        
+        .date-section {
+            text-align: right;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .medications-section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .medication-item {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #fafafa;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        
+        .medication-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        
+        .medication-details {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.8;
+        }
+        
+        .instructions-section {
+            background: #fef3c7;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #f59e0b;
+            margin-bottom: 40px;
+        }
+        
+        .instructions-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+        
+        .instructions-text {
+            font-size: 14px;
+            color: #78350f;
+            line-height: 1.6;
+        }
+        
+        .signature-section {
+            margin-top: 60px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .signature-box {
+            text-align: center;
+            width: 200px;
+        }
+        
+        .signature-line {
+            border-top: 2px solid #1e293b;
+            padding-top: 10px;
+            margin-top: 60px;
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 20mm;
+            left: 20mm;
+            right: 20mm;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+        }
+        
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            z-index: 1000;
+        }
+        
+        .print-button:hover {
+            background: #5568d3;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .prescription-page {
+                box-shadow: none;
+                margin: 0;
+                padding: 15mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button no-print" onclick="window.print()">🖨️ Imprimer</button>
+    
+    <div class="prescription-page" id="prescription-content">
+        <div class="header">
+            <div class="doctor-info">
+                <div class="doctor-name" id="doctor-name">Dr. [Nom du médecin]</div>
+                <div class="doctor-title">Médecin Généraliste</div>
+                <div class="doctor-contact">
+                    📞 <span id="doctor-phone">0634602548</span><br>
+                    📧 <span id="doctor-email">abdellahdefaa23@gmail.com</span><br>
+                    📍 <span id="doctor-address">Fès, Maroc</span>
+                </div>
+            </div>
+            <div class="logo">⚕️</div>
+        </div>
+        
+        <div class="prescription-title">Ordonnance</div>
+        
+        <div class="date-section" id="prescription-date">
+            Fès, le [Date]
+        </div>
+        
+        <div class="patient-section">
+            <div class="patient-info">
+                <div class="info-item">
+                    <span class="info-label">Patient :</span>
+                    <span class="info-value" id="patient-name">[Nom du patient]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Âge :</span>
+                    <span class="info-value" id="patient-age">[Âge]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Sexe :</span>
+                    <span class="info-value" id="patient-gender">[Sexe]</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Téléphone :</span>
+                    <span class="info-value" id="patient-phone">[Téléphone]</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="medications-section">
+            <div class="section-title">💊 Prescription</div>
+            <div id="medications-list">
+                <!-- Les médicaments seront insérés ici -->
+            </div>
+        </div>
+        
+        <div id="instructions-container" style="display: none;">
+            <div class="instructions-section">
+                <div class="instructions-title">💡 Instructions et recommandations</div>
+                <div class="instructions-text" id="instructions-text"></div>
+            </div>
+        </div>
+        
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line">
+                    Signature et cachet du médecin
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            Cette ordonnance est confidentielle et destinée uniquement au patient mentionné ci-dessus.
+        </div>
+    </div>
+    
+    <script type="module">
+        import { getCurrentUser } from './supabase-client.js'
+        import { getPrescriptionById, formatPrescriptionDate } from './prescriptions-api.js'
+        import { calculateAge } from './patients-api.js'
+        
+        const prescriptionId = new URLSearchParams(window.location.search).get('id')
+        
+        async function loadPrescription() {
+            if (!prescriptionId) {
+                alert('Aucune ordonnance spécifiée')
+                window.close()
+                return
+            }
+            
+            const result = await getPrescriptionById(prescriptionId)
+            
+            if (result.success) {
+                const p = result.prescription
+                const patient = p.patient
+                
+                // Informations du médecin (à personnaliser depuis les settings utilisateur)
+                const user = await getCurrentUser()
+                document.getElementById('doctor-name').textContent = 
+                    user.user_metadata?.full_name || 'Dr. ' + user.email.split('@')[0]
+                
+                // Date
+                document.getElementById('prescription-date').textContent = 
+                    'Fès, le ' + formatPrescriptionDate(p.date_prescription)
+                
+                // Informations patient
+                document.getElementById('patient-name').textContent = 
+                    `${patient.prenom} ${patient.nom}`
+                document.getElementById('patient-age').textContent = 
+                    calculateAge(patient.date_naissance) + ' ans'
+                document.getElementById('patient-gender').textContent = 
+                    patient.sexe === 'M' ? 'Homme' : 'Femme'
+                document.getElementById('patient-phone').textContent = 
+                    patient.telephone
+                
+                // Médicaments
+                const medicationsList = document.getElementById('medications-list')
+                medicationsList.innerHTML = p.items.map((item, index) => `
+                    <div class="medication-item">
+                        <div class="medication-name">
+                            ${index + 1}. ${item.medicament_nom} ${item.dosage}
+                        </div>
+                        <div class="medication-details">
+                            <strong>Forme :</strong> ${item.forme}<br>
+                            <strong>Posologie :</strong> ${item.posologie}
+                            ${item.duree ? '<br><strong>Durée :</strong> ' + item.duree : ''}
+                        </div>
+                    </div>
+                `).join('')
+                
+                // Instructions
+                if (p.instructions) {
+                    document.getElementById('instructions-container').style.display = 'block'
+                    document.getElementById('instructions-text').textContent = p.instructions
+                }
+                
+                // Titre de la page
+                document.title = `Ordonnance - ${patient.prenom} ${patient.nom}`
+                
+            } else {
+                alert('Erreur lors du chargement de l\'ordonnance')
+                window.close()
+            }
+        }
+        
+        loadPrescription()
+    </script>
+</body>
+</html>
