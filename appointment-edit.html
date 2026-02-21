@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier RDV - MedCabin</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="margin:0;font-family:'Inter',sans-serif;background:#f8fafc">
+    <div style="max-width:800px;margin:0 auto;padding:2rem">
+        <a href="appointments.html" style="display:inline-flex;align-items:center;gap:0.5rem;color:#64748b;text-decoration:none;margin-bottom:2rem;font-weight:500">← Retour</a>
+        <h1 style="font-size:2rem;font-weight:800;margin-bottom:2rem">✏️ Modifier le Rendez-vous</h1>
+        <div id="form-container"></div>
+    </div>
+    <script type="module">
+        import { getCurrentUser } from './supabase-client.js'
+        import { getAppointmentById, updateAppointment } from './appointments-api.js'
+        
+        const urlParams = new URLSearchParams(window.location.search)
+        const id = urlParams.get('id')
+        
+        async function load() {
+            const result = await getAppointmentById(id)
+            if (result.success) {
+                const a = result.appointment
+                document.getElementById('form-container').innerHTML = `
+                    <form id="edit-form" style="background:white;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05);padding:2rem">
+                        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-bottom:2rem">
+                            <div><label style="font-weight:600;display:block;margin-bottom:0.5rem">Date *</label><input type="date" name="date" value="${a.date}" required style="width:100%;padding:0.875rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:1rem"></div>
+                            <div><label style="font-weight:600;display:block;margin-bottom:0.5rem">Type</label><select name="type" style="width:100%;padding:0.875rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:1rem"><option value="consultation" ${a.type==='consultation'?'selected':''}>Consultation</option><option value="suivi" ${a.type==='suivi'?'selected':''}>Suivi</option><option value="urgence" ${a.type==='urgence'?'selected':''}>Urgence</option></select></div>
+                            <div><label style="font-weight:600;display:block;margin-bottom:0.5rem">Heure début</label><input type="time" name="heure_debut" value="${a.heure_debut}" required style="width:100%;padding:0.875rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:1rem"></div>
+                            <div><label style="font-weight:600;display:block;margin-bottom:0.5rem">Heure fin</label><input type="time" name="heure_fin" value="${a.heure_fin}" required style="width:100%;padding:0.875rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:1rem"></div>
+                        </div>
+                        <div style="margin-bottom:2rem"><label style="font-weight:600;display:block;margin-bottom:0.5rem">Motif</label><input type="text" name="motif" value="${a.motif||''}" style="width:100%;padding:0.875rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:1rem"></div>
+                        <div style="display:flex;gap:1rem;justify-content:flex-end;padding-top:2rem;border-top:1px solid #e2e8f0">
+                            <button type="button" onclick="window.history.back()" style="padding:0.875rem 2rem;background:#f1f5f9;color:#1e293b;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer">Annuler</button>
+                            <button type="submit" style="padding:0.875rem 2rem;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer">💾 Enregistrer</button>
+                        </div>
+                    </form>
+                `
+                
+                document.getElementById('edit-form').addEventListener('submit', async (e) => {
+                    e.preventDefault()
+                    const formData = new FormData(e.target)
+                    const data = Object.fromEntries(formData)
+                    const result = await updateAppointment(id, data)
+                    if (result.success) {
+                        alert('✅ Modifié!')
+                        window.location.href = `appointment-detail.html?id=${id}`
+                    }
+                })
+            }
+        }
+        
+        getCurrentUser().then(user => {
+            if (user) load()
+            else window.location.href = 'login.html'
+        })
+    </script>
+</body>
+</html>

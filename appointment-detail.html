@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Détails RDV - MedCabin</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="margin:0;font-family:'Inter',sans-serif;background:#f8fafc">
+    <div style="max-width:900px;margin:0 auto;padding:2rem">
+        <a href="appointments.html" style="display:inline-flex;align-items:center;gap:0.5rem;color:#64748b;text-decoration:none;margin-bottom:2rem;font-weight:500">← Retour</a>
+        <div id="content"></div>
+    </div>
+    <script type="module">
+        import { getCurrentUser } from './supabase-client.js'
+        import { getAppointmentById, updateAppointmentStatus, deleteAppointment, APPOINTMENT_STATUS, formatTime } from './appointments-api.js'
+        
+        const urlParams = new URLSearchParams(window.location.search)
+        const id = urlParams.get('id')
+        
+        async function load() {
+            const result = await getAppointmentById(id)
+            if (result.success) {
+                const a = result.appointment
+                document.getElementById('content').innerHTML = `
+                    <div style="background:white;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05);padding:2rem">
+                        <h1 style="font-size:2rem;font-weight:800;margin-bottom:1rem">📅 Rendez-vous</h1>
+                        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:2rem;margin-bottom:2rem">
+                            <div><h3 style="font-weight:700;margin-bottom:1rem">👤 Patient</h3><p><strong>${a.patient.prenom} ${a.patient.nom}</strong></p><p>📞 ${a.patient.telephone}</p></div>
+                            <div><h3 style="font-weight:700;margin-bottom:1rem">📋 Détails</h3><p><strong>Date:</strong> ${new Date(a.date).toLocaleDateString('fr-FR')}</p><p><strong>Horaire:</strong> ${formatTime(a.heure_debut)} - ${formatTime(a.heure_fin)}</p><p><strong>Type:</strong> ${a.type}</p><p><strong>Statut:</strong> ${a.statut}</p></div>
+                        </div>
+                        ${a.motif ? `<div style="margin-bottom:1.5rem"><strong>Motif:</strong> ${a.motif}</div>` : ''}
+                        ${a.notes ? `<div style="margin-bottom:1.5rem"><strong>Notes:</strong> ${a.notes}</div>` : ''}
+                        <div style="display:flex;gap:1rem;flex-wrap:wrap;padding-top:2rem;border-top:1px solid #e2e8f0">
+                            <button onclick="changeStatus('termine')" style="padding:0.75rem 1.5rem;background:#10b981;color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer">✅ Marquer terminé</button>
+                            <button onclick="changeStatus('annule')" style="padding:0.75rem 1.5rem;background:#ef4444;color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer">❌ Annuler</button>
+                            <button onclick="window.location.href='appointment-edit.html?id=${id}'" style="padding:0.75rem 1.5rem;background:#667eea;color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer">✏️ Modifier</button>
+                            <button onclick="deleteRdv()" style="padding:0.75rem 1.5rem;background:#64748b;color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer">🗑️ Supprimer</button>
+                        </div>
+                    </div>
+                `
+            }
+        }
+        
+        window.changeStatus = async (status) => {
+            if (confirm('Changer le statut?')) {
+                const result = await updateAppointmentStatus(id, status)
+                if (result.success) {
+                    alert('✅ Statut modifié')
+                    load()
+                }
+            }
+        }
+        
+        window.deleteRdv = async () => {
+            if (confirm('Supprimer ce rendez-vous?')) {
+                const result = await deleteAppointment(id)
+                if (result.success) {
+                    alert('✅ RDV supprimé')
+                    window.location.href = 'appointments.html'
+                }
+            }
+        }
+        
+        getCurrentUser().then(user => {
+            if (user) load()
+            else window.location.href = 'login.html'
+        })
+    </script>
+</body>
+</html>
