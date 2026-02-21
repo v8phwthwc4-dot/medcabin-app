@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ordonnances - MedCabin</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="margin:0;font-family:'Inter',sans-serif;background:#f8fafc">
+    <div style="display:flex;min-height:100vh">
+        <aside style="width:260px;background:linear-gradient(180deg,#667eea,#764ba2);color:white;padding:2rem 0;position:fixed;height:100vh">
+            <div style="padding:0 1.5rem;margin-bottom:2rem;cursor:pointer" onclick="window.location.href='dashboard.html'"><span style="font-size:2rem">⚕️</span><span style="font-size:1.5rem;font-weight:800;margin-left:0.75rem">MedCabin</span></div>
+            <a href="dashboard.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">📊 Tableau de bord</a>
+            <a href="appointments.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">📅 Rendez-vous</a>
+            <a href="patients.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">👥 Patients</a>
+            <a href="#" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">💰 Facturation</a>
+            <a href="prescriptions.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none;background:rgba(255,255,255,0.2);border-left:4px solid white">📝 Ordonnances</a>
+            <a href="custom-fields-settings.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">⚙️ Paramètres</a>
+        </aside>
+        <main style="margin-left:260px;flex:1;padding:2rem">
+            <h1 style="font-size:2rem;font-weight:800;margin-bottom:2rem">📝 Ordonnances</h1>
+            <div style="background:white;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05);padding:1.5rem;margin-bottom:2rem;display:flex;gap:1rem;justify-content:space-between">
+                <input type="text" id="search" placeholder="Rechercher un patient..." style="flex:1;padding:0.75rem;border:2px solid #e2e8f0;border-radius:0.5rem">
+                <button onclick="window.location.href='prescription-create.html'" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer">➕ Nouvelle ordonnance</button>
+            </div>
+            <div id="prescriptions-list" style="background:white;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05);padding:2rem">Chargement...</div>
+        </main>
+    </div>
+    <script type="module">
+        import { getCurrentUser } from './supabase-client.js'
+        import { getAllPrescriptions, formatPrescriptionDate } from './prescriptions-api.js'
+        
+        let allPrescriptions = []
+        
+        async function load() {
+            const result = await getAllPrescriptions()
+            if (result.success) {
+                allPrescriptions = result.prescriptions
+                display(allPrescriptions)
+            }
+        }
+        
+        function display(prescriptions) {
+            const container = document.getElementById('prescriptions-list')
+            if (prescriptions.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#64748b">Aucune ordonnance</p>'
+                return
+            }
+            
+            container.innerHTML = prescriptions.map(p => `
+                <div onclick="window.location.href='prescription-detail.html?id=${p.id}'" style="padding:1.5rem;border:1px solid #e2e8f0;border-radius:0.75rem;margin-bottom:1rem;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                    <div style="display:flex;justify-content:space-between;align-items:start">
+                        <div>
+                            <h3 style="margin:0 0 0.5rem 0;font-size:1.1rem;font-weight:700">${p.patient?.prenom} ${p.patient?.nom}</h3>
+                            <p style="margin:0;color:#64748b;font-size:0.9rem">📅 ${formatPrescriptionDate(p.date_prescription)}</p>
+                            ${p.diagnostic ? `<p style="margin:0.5rem 0 0 0;color:#64748b;font-size:0.9rem">🩺 ${p.diagnostic}</p>` : ''}
+                        </div>
+                        <span style="background:#667eea;color:white;padding:0.5rem 1rem;border-radius:0.5rem;font-size:0.85rem;font-weight:600">${p.items?.length || 0} médicament(s)</span>
+                    </div>
+                </div>
+            `).join('')
+        }
+        
+        document.getElementById('search').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase()
+            const filtered = allPrescriptions.filter(p => 
+                p.patient?.nom.toLowerCase().includes(query) ||
+                p.patient?.prenom.toLowerCase().includes(query)
+            )
+            display(filtered)
+        })
+        
+        getCurrentUser().then(user => {
+            if (user) load()
+            else window.location.href = 'login.html'
+        })
+    </script>
+</body>
+</html>
