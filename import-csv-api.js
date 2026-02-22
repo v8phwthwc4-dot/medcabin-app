@@ -8,16 +8,40 @@ import { createInvoice } from './invoices-api.js'
 
 // ===== PARSER CSV =====
 export function parseCSV(csvText) {
-    const lines = csvText.trim().split('\n')
+    const lines = csvText.trim().split('\n').filter(line => line.trim())
     if (lines.length < 2) {
         return { success: false, error: 'Fichier vide' }
     }
     
-    const headers = lines[0].split(',').map(h => h.trim())
+    // Parser plus robuste qui gère les virgules dans les guillemets
+    function parseLine(line) {
+        const result = []
+        let current = ''
+        let inQuotes = false
+        
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i]
+            
+            if (char === '"') {
+                inQuotes = !inQuotes
+            } else if (char === ',' && !inQuotes) {
+                result.push(current.trim())
+                current = ''
+            } else {
+                current += char
+            }
+        }
+        result.push(current.trim())
+        return result
+    }
+    
+    const headers = parseLine(lines[0]).map(h => h.toLowerCase().replace(/['"]/g, ''))
     const rows = []
     
     for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.trim())
+        if (!lines[i].trim()) continue
+        
+        const values = parseLine(lines[i]).map(v => v.replace(/['"]/g, ''))
         const row = {}
         headers.forEach((header, index) => {
             row[header] = values[index] || null
@@ -40,17 +64,27 @@ export async function importPatients(rows) {
         const row = rows[i]
         
         try {
-            // Préparer les données
+            // Mapping flexible des colonnes (accepte plusieurs variantes)
             const patientData = {
-                nom: row.nom,
-                prenom: row.prenom,
-                date_naissance: row.date_naissance,
-                sexe: row.sexe,
-                telephone: row.telephone,
-                email: row.email || null,
-                adresse: row.adresse || null,
-                ville: row.ville || null,
+                nom: row.nom || row.name || row.lastname || null,
+                prenom: row.prenom || row.firstname || row.prénom || null,
+                date_naissance: row.date_naissance || row.date_de_naissance || row.birthdate || row.dob || null,
+                sexe: row.sexe || row.gender || row.sex || null,
+                telephone: row.telephone || row.phone || row.tel || row.téléphone || null,
+                email: row.email || row.mail || null,
+                adresse: row.adresse || row.address || null,
+                ville: row.ville || row.city || null,
                 custom_fields: {}
+            }
+            
+            // Normaliser le sexe
+            if (patientData.sexe) {
+                const s = patientData.sexe.toUpperCase()
+                if (s === 'H' || s === 'HOMME' || s === 'M' || s === 'MALE') {
+                    patientData.sexe = 'M'
+                } else if (s === 'F' || s === 'FEMME' || s === 'FEMALE') {
+                    patientData.sexe = 'F'
+                }
             }
             
             // Valider
@@ -72,7 +106,7 @@ export async function importPatients(rows) {
                 results.details.push({
                     row: i + 2,
                     status: 'success',
-                    message: `${patientData.prenom} ${patientData.nom} importé`
+                    message: `${patientData.prenom} ${patientData.nom} importé(e)`
                 })
             } else {
                 results.errors++
@@ -107,16 +141,22 @@ export async function importAppointments(rows, patientsList) {
         const row = rows[i]
         
         try {
-            // Trouver le patient par nom/prénom si fourni
-            let patientId = row.patient_id
+            // Trouver le patient de manière flexible
+            let patientId = row.patient_id || row.patientid || row.id_patient
             
-            if (!patientId && row.patient_nom && row.patient_prenom) {
-                const patient = patientsList.find(p => 
-                    p.nom.toLowerCase() === row.patient_nom.toLowerCase() &&
-                    p.prenom.toLowerCase() === row.patient_prenom.toLowerCase()
-                )
-                if (patient) {
-                    patientId = patient.id
+            if (!patientId) {
+                // Essayer de trouver par nom/prénom
+                const nom = row.patient_nom || row.patientnom || row.nom_patient || row.nom
+                const prenom = row.patient_prenom || row.patientprenom || row.prenom_patient || row.prenom
+                
+                if (nom && prenom) {
+                    const patient = patientsList.find(p => 
+                        p.nom.toLowerCase() === nom.toLowerCase() &&
+                        p.prenom.toLowerCase() === prenom.toLowerCase()
+                    )
+                    if (patient) {
+                        patientId = patient.id
+                    }
                 }
             }
             
@@ -125,19 +165,19 @@ export async function importAppointments(rows, patientsList) {
                 results.details.push({
                     row: i + 2,
                     status: 'error',
-                    message: 'Patient non trouvé'
+                    message: 'Patient non trouvé (indiquez patient_id ou patient_nom + patient_prenom)'
                 })
                 continue
             }
             
             const appointmentData = {
                 patient_id: patientId,
-                date: row.date,
-                heure_debut: row.heure_debut,
-                heure_fin: row.heure_fin,
+                date: row.date || null,
+                heure_debut: row.heure_debut || row.heure || row.time || '09:00:00',
+                heure_fin: row.heure_fin || row.end_time || '09:30:00',
                 type: row.type || 'consultation',
-                statut: row.statut || 'confirme',
-                motif: row.motif || null,
+                statut: row.statut || row.status || 'confirme',
+                motif: row.motif || row.reason || null,
                 notes: row.notes || null
             }
             
@@ -147,7 +187,7 @@ export async function importAppointments(rows, patientsList) {
                 results.details.push({
                     row: i + 2,
                     status: 'success',
-                    message: `RDV du ${row.date} importé`
+                    message: `RDV du ${appointmentData.date} importé`
                 })
             } else {
                 results.errors++
@@ -182,15 +222,20 @@ export async function importInvoices(rows, patientsList) {
         const row = rows[i]
         
         try {
-            let patientId = row.patient_id
+            let patientId = row.patient_id || row.patientid || row.id_patient
             
-            if (!patientId && row.patient_nom && row.patient_prenom) {
-                const patient = patientsList.find(p => 
-                    p.nom.toLowerCase() === row.patient_nom.toLowerCase() &&
-                    p.prenom.toLowerCase() === row.patient_prenom.toLowerCase()
-                )
-                if (patient) {
-                    patientId = patient.id
+            if (!patientId) {
+                const nom = row.patient_nom || row.patientnom || row.nom_patient || row.nom
+                const prenom = row.patient_prenom || row.patientprenom || row.prenom_patient || row.prenom
+                
+                if (nom && prenom) {
+                    const patient = patientsList.find(p => 
+                        p.nom.toLowerCase() === nom.toLowerCase() &&
+                        p.prenom.toLowerCase() === prenom.toLowerCase()
+                    )
+                    if (patient) {
+                        patientId = patient.id
+                    }
                 }
             }
             
@@ -206,11 +251,11 @@ export async function importInvoices(rows, patientsList) {
             
             const invoiceData = {
                 patient_id: patientId,
-                date_facture: row.date_facture,
-                montant: parseFloat(row.montant),
-                statut: row.statut || 'en_attente',
-                mode_paiement: row.mode_paiement || null,
-                date_paiement: row.date_paiement || null,
+                date_facture: row.date_facture || row.date || new Date().toISOString().split('T')[0],
+                montant: parseFloat(row.montant || row.amount || 0),
+                statut: row.statut || row.status || 'en_attente',
+                mode_paiement: row.mode_paiement || row.payment_method || null,
+                date_paiement: row.date_paiement || row.payment_date || null,
                 description: row.description || null,
                 notes: row.notes || null
             }
@@ -221,7 +266,7 @@ export async function importInvoices(rows, patientsList) {
                 results.details.push({
                     row: i + 2,
                     status: 'success',
-                    message: `Facture de ${row.montant} DH importée`
+                    message: `Facture de ${invoiceData.montant} DH importée`
                 })
             } else {
                 results.errors++
