@@ -1,107 +1,75 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rendez-vous - MedCabin</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
+<head><meta charset="UTF-8"><title>Calendrier - MedCabin</title><link rel="stylesheet" href="styles.css"><style>
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#e2e8f0;border:1px solid #e2e8f0;border-radius:0.75rem;overflow:hidden}
+.calendar-day{background:white;min-height:120px;padding:0.5rem;position:relative;cursor:pointer;transition:background 0.2s}
+.calendar-day:hover{background:#f8fafc}
+.calendar-day.other-month{background:#f8fafc;opacity:0.5}
+.calendar-day.today{background:#eff6ff;border:2px solid #3b82f6}
+.day-number{font-weight:700;font-size:0.9rem;margin-bottom:0.5rem}
+.appointment-item{background:#667eea;color:white;padding:0.25rem 0.5rem;border-radius:0.25rem;font-size:0.75rem;margin-bottom:0.25rem;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.appointment-item:hover{background:#5568d3}
+.calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;padding:1rem;background:white;border-radius:0.75rem;box-shadow:0 2px 10px rgba(0,0,0,0.05)}
+.nav-btn{padding:0.5rem 1rem;background:#f1f5f9;border:none;border-radius:0.5rem;cursor:pointer;font-weight:600;transition:background 0.2s}
+.nav-btn:hover{background:#e2e8f0}
+.month-year-selector{display:flex;gap:0.5rem;align-items:center}
+select{padding:0.5rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:1rem;font-weight:600;cursor:pointer}
+.view-toggle{display:flex;gap:0.5rem;background:#f1f5f9;padding:0.25rem;border-radius:0.5rem}
+.view-toggle button{padding:0.5rem 1rem;border:none;background:transparent;cursor:pointer;font-weight:600;border-radius:0.375rem;transition:all 0.2s}
+.view-toggle button.active{background:white;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+</style></head>
 <body style="margin:0;font-family:'Inter',sans-serif;background:#f8fafc">
-    <div style="display:flex;min-height:100vh">
-        <aside style="width:260px;background:linear-gradient(180deg,#667eea,#764ba2);color:white;padding:2rem 0;position:fixed;height:100vh">
-            <div style="padding:0 1.5rem;margin-bottom:2rem;cursor:pointer" onclick="window.location.href='dashboard.html'">
-                <span style="font-size:2rem">⚕️</span>
-                <span style="font-size:1.5rem;font-weight:800;margin-left:0.75rem">MedCabin</span>
-            </div>
-            <a href="dashboard.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">📊 Tableau de bord</a>
-            <a href="appointments.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none;background:rgba(255,255,255,0.2);border-left:4px solid white">📅 Rendez-vous</a>
-            <a href="patients.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">👥 Patients</a>
-            <a href="#" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">💰 Facturation</a>
-            <a href="#" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">📝 Ordonnances</a>
-            <a href="custom-fields-settings.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">⚙️ Paramètres</a>
-        </aside>
-        <main style="margin-left:260px;flex:1;padding:2rem">
-            <h1 style="font-size:2rem;font-weight:800;margin-bottom:2rem">📅 Gestion des Rendez-vous</h1>
-            <div style="background:white;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05);padding:1.5rem;margin-bottom:2rem;display:flex;gap:1rem;align-items:center">
-                <button onclick="changeWeek(-1)" style="padding:0.75rem 1rem;background:#f1f5f9;border:none;border-radius:0.5rem;cursor:pointer">← Semaine précédente</button>
-                <button onclick="changeWeek(0)" style="padding:0.75rem 1rem;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:0.5rem;cursor:pointer">Aujourd'hui</button>
-                <button onclick="changeWeek(1)" style="padding:0.75rem 1rem;background:#f1f5f9;border:none;border-radius:0.5rem;cursor:pointer">Semaine suivante →</button>
-                <span id="week-label" style="flex:1;text-align:center;font-weight:600;font-size:1.1rem"></span>
-                <button onclick="window.location.href='appointment-add.html'" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer">➕ Nouveau RDV</button>
-            </div>
-            <div id="calendar-container" style="background:white;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05);padding:2rem;min-height:600px">
-                <p style="text-align:center;color:#64748b">Chargement du calendrier...</p>
-            </div>
-        </main>
-    </div>
-    <script type="module">
-        import { getCurrentUser } from './supabase-client.js'
-        import { getAppointmentsByDateRange, APPOINTMENT_TYPE_COLORS, formatTime } from './appointments-api.js'
-        
-        let currentWeekStart = new Date()
-        currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1)
-        
-        async function loadWeek() {
-            const weekEnd = new Date(currentWeekStart)
-            weekEnd.setDate(weekEnd.getDate() + 6)
-            
-            document.getElementById('week-label').textContent = 
-                currentWeekStart.toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) + 
-                ' - ' + 
-                weekEnd.toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric'})
-            
-            const result = await getAppointmentsByDateRange(
-                currentWeekStart.toISOString().split('T')[0],
-                weekEnd.toISOString().split('T')[0]
-            )
-            
-            if (result.success) {
-                renderCalendar(result.appointments)
-            }
-        }
-        
-        function renderCalendar(appointments) {
-            const days = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']
-            let html = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1rem">'
-            
-            for (let i = 0; i < 7; i++) {
-                const date = new Date(currentWeekStart)
-                date.setDate(date.getDate() + i)
-                const dateStr = date.toISOString().split('T')[0]
-                const dayAppts = appointments.filter(a => a.date === dateStr)
-                
-                html += `<div style="border:2px solid #e2e8f0;border-radius:0.75rem;padding:1rem;min-height:400px">
-                    <div style="font-weight:700;margin-bottom:1rem;text-align:center">${days[i]}<br>${date.getDate()}</div>`
-                
-                dayAppts.forEach(apt => {
-                    const color = APPOINTMENT_TYPE_COLORS[apt.type] || '#667eea'
-                    html += `<div onclick="window.location.href='appointment-detail.html?id=${apt.id}'" style="background:${color};color:white;padding:0.75rem;border-radius:0.5rem;margin-bottom:0.5rem;cursor:pointer;font-size:0.85rem">
-                        <div style="font-weight:600">${formatTime(apt.heure_debut)}</div>
-                        <div>${apt.patient?.prenom} ${apt.patient?.nom}</div>
-                    </div>`
-                })
-                
-                html += '</div>'
-            }
-            
-            html += '</div>'
-            document.getElementById('calendar-container').innerHTML = html
-        }
-        
-        window.changeWeek = (offset) => {
-            if (offset === 0) {
-                currentWeekStart = new Date()
-                currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1)
-            } else {
-                currentWeekStart.setDate(currentWeekStart.getDate() + (offset * 7))
-            }
-            loadWeek()
-        }
-        
-        getCurrentUser().then(user => {
-            if (user) loadWeek()
-            else window.location.href = 'login.html'
-        })
-    </script>
+<div style="display:flex;min-height:100vh">
+<aside style="width:260px;background:linear-gradient(180deg,#667eea,#764ba2);color:white;padding:2rem 0;position:fixed;height:100vh;overflow-y:auto">
+<div style="padding:0 1.5rem;margin-bottom:2rem;cursor:pointer" onclick="window.location.href='dashboard.html'"><span style="font-size:2rem">⚕️</span><span style="font-size:1.5rem;font-weight:800;margin-left:0.75rem">MedCabin</span></div>
+<a href="dashboard.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">📊 Tableau de bord</a>
+<a href="appointments.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none;background:rgba(255,255,255,0.2);border-left:4px solid white">📅 Rendez-vous</a>
+<a href="patients.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">👥 Patients</a>
+<a href="invoices.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">💰 Facturation</a>
+<a href="prescriptions.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">📝 Ordonnances</a>
+<a href="custom-fields-settings.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">⚙️ Paramètres</a>
+</aside>
+<main style="margin-left:260px;flex:1;padding:2rem">
+<h1 style="font-size:2rem;font-weight:800;margin-bottom:2rem">📅 Calendrier des Rendez-vous</h1>
+<div class="calendar-header">
+<button class="nav-btn" onclick="changeMonth(-1)">← Mois précédent</button>
+<div class="month-year-selector">
+<select id="month-select" onchange="updateCalendar()"></select>
+<select id="year-select" onchange="updateCalendar()"></select>
+<button onclick="goToToday()" style="margin-left:1rem;padding:0.5rem 1rem;background:#667eea;color:white;border:none;border-radius:0.5rem;cursor:pointer;font-weight:600">Aujourd'hui</button>
+</div>
+<div class="view-toggle">
+<button id="view-month" class="active" onclick="switchView('month')">Mois</button>
+<button id="view-week" onclick="switchView('week')">Semaine</button>
+</div>
+<button onclick="window.location.href='appointment-add.html'" style="padding:0.5rem 1.5rem;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer">➕ Nouveau RDV</button>
+</div>
+<div id="calendar-container"></div>
+</main>
+</div>
+<script type="module">
+import{getCurrentUser}from'./supabase-client.js';import{getAppointmentsByDateRange,APPOINTMENT_TYPE_COLORS,formatTime}from'./appointments-api.js';
+let currentDate=new Date();let appointments=[];let currentView='month';
+const monthNames=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const dayNames=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+function initSelectors(){const monthSel=document.getElementById('month-select');monthNames.forEach((m,i)=>{const opt=document.createElement('option');opt.value=i;opt.textContent=m;monthSel.appendChild(opt)});const yearSel=document.getElementById('year-select');const currentYear=new Date().getFullYear();for(let y=currentYear-5;y<=currentYear+5;y++){const opt=document.createElement('option');opt.value=y;opt.textContent=y;yearSel.appendChild(opt)}monthSel.value=currentDate.getMonth();yearSel.value=currentDate.getFullYear()}
+async function loadAppointments(){const year=currentDate.getFullYear();const month=currentDate.getMonth();const startDate=new Date(year,month,1).toISOString().split('T')[0];const endDate=new Date(year,month+1,0).toISOString().split('T')[0];const result=await getAppointmentsByDateRange(startDate,endDate);if(result.success){appointments=result.appointments;renderCalendar()}}
+function renderCalendar(){if(currentView==='month')renderMonthView();else renderWeekView()}
+function renderMonthView(){const year=currentDate.getFullYear();const month=currentDate.getMonth();const firstDay=new Date(year,month,1);const lastDay=new Date(year,month+1,0);const prevMonthLastDay=new Date(year,month,0);const startDay=(firstDay.getDay()+6)%7;const daysInMonth=lastDay.getDate();const daysInPrevMonth=prevMonthLastDay.getDate();
+let html='<div style="background:white;padding:1.5rem;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05)">';html+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:0.5rem;margin-bottom:1rem">';dayNames.forEach(d=>{html+=`<div style="text-align:center;font-weight:700;color:#64748b;padding:0.5rem">${d}</div>`});html+='</div><div class="calendar-grid">';
+for(let i=0;i<startDay;i++){const day=daysInPrevMonth-startDay+i+1;html+=`<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`}
+const today=new Date();for(let day=1;day<=daysInMonth;day++){const date=new Date(year,month,day);const dateStr=date.toISOString().split('T')[0];const isToday=dateStr===today.toISOString().split('T')[0];const dayAppts=appointments.filter(a=>a.date===dateStr);html+=`<div class="calendar-day${isToday?' today':''}" onclick="openDay('${dateStr}')"><div class="day-number">${day}</div>`;dayAppts.forEach(apt=>{const color=APPOINTMENT_TYPE_COLORS[apt.type]||'#667eea';html+=`<div class="appointment-item" style="background:${color}" onclick="event.stopPropagation();window.location.href='appointment-detail.html?id=${apt.id}'">${formatTime(apt.heure_debut)} ${apt.motif||'RDV'}</div>`});html+='</div>'}
+const remainingDays=42-(startDay+daysInMonth);for(let i=1;i<=remainingDays;i++){html+=`<div class="calendar-day other-month"><div class="day-number">${i}</div></div>`}
+html+='</div></div>';document.getElementById('calendar-container').innerHTML=html}
+function renderWeekView(){const weekStart=new Date(currentDate);weekStart.setDate(weekStart.getDate()-weekStart.getDay()+1);let html='<div style="background:white;padding:1.5rem;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05)"><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1rem">';
+for(let i=0;i<7;i++){const date=new Date(weekStart);date.setDate(date.getDate()+i);const dateStr=date.toISOString().split('T')[0];const dayAppts=appointments.filter(a=>a.date===dateStr);const isToday=dateStr===new Date().toISOString().split('T')[0];html+=`<div style="border:2px solid ${isToday?'#3b82f6':'#e2e8f0'};border-radius:0.75rem;padding:1rem;min-height:500px"><div style="text-align:center;font-weight:700;margin-bottom:1rem">${dayNames[i]}<br>${date.getDate()}</div>`;dayAppts.forEach(apt=>{const color=APPOINTMENT_TYPE_COLORS[apt.type]||'#667eea';html+=`<div onclick="window.location.href='appointment-detail.html?id=${apt.id}'" style="background:${color};color:white;padding:0.75rem;border-radius:0.5rem;margin-bottom:0.5rem;cursor:pointer"><div style="font-weight:600">${formatTime(apt.heure_debut)}</div><div style="font-size:0.85rem">${apt.motif||'RDV'}</div></div>`});html+='</div>'}
+html+='</div></div>';document.getElementById('calendar-container').innerHTML=html}
+window.changeMonth=(offset)=>{currentDate.setMonth(currentDate.getMonth()+offset);document.getElementById('month-select').value=currentDate.getMonth();document.getElementById('year-select').value=currentDate.getFullYear();loadAppointments()};
+window.updateCalendar=()=>{const month=parseInt(document.getElementById('month-select').value);const year=parseInt(document.getElementById('year-select').value);currentDate=new Date(year,month,1);loadAppointments()};
+window.goToToday=()=>{currentDate=new Date();document.getElementById('month-select').value=currentDate.getMonth();document.getElementById('year-select').value=currentDate.getFullYear();loadAppointments()};
+window.switchView=(view)=>{currentView=view;document.getElementById('view-month').classList.toggle('active',view==='month');document.getElementById('view-week').classList.toggle('active',view==='week');renderCalendar()};
+window.openDay=(date)=>{alert('Cliquez sur un RDV pour voir les détails ou utilisez le bouton "Nouveau RDV"')};
+getCurrentUser().then(u=>{if(u){initSelectors();loadAppointments()}else window.location.href='login.html'})
+</script>
 </body>
 </html>
