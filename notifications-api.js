@@ -38,7 +38,7 @@ export async function getAlerts() {
         }
     } catch (e) { console.error('Erreur conflits:', e) }
     
-    // ALERTE 2 : Factures impayées (placeholder pour évolution future)
+    // ALERTE 2 : Factures impayées
     try {
         const { data } = await supabase
             .from('invoices')
