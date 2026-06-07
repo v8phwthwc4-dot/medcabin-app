@@ -165,3 +165,42 @@ export function formatMontant(montant) {
 }
 
 console.log('✅ Dashboard Stats API chargée')
+
+// ===== DÉTECTER LES CONFLITS D'HORAIRE DU JOUR =====
+export async function getTodayConflicts() {
+    try {
+        const today = new Date().toISOString().split('T')[0]
+        
+        const { data, error } = await supabase
+            .from('appointments')
+            .select(`
+                *,
+                patient:patients(id, nom, prenom, telephone)
+            `)
+            .eq('date', today)
+            .neq('statut', 'annule')
+            .order('heure_debut', { ascending: true })
+        
+        if (error) throw error
+        
+        const conflicts = []
+        for (let i = 0; i < data.length; i++) {
+            for (let j = i + 1; j < data.length; j++) {
+                const a = data[i]
+                const b = data[j]
+                if (a.heure_debut < b.heure_fin && b.heure_debut < a.heure_fin) {
+                    conflicts.push({
+                        id: `${a.id}_${b.id}`,
+                        appointment1: a,
+                        appointment2: b
+                    })
+                }
+            }
+        }
+        
+        return { success: true, conflicts }
+    } catch (error) {
+        console.error('Erreur détection conflits:', error.message)
+        return { success: false, error: error.message }
+    }
+}
