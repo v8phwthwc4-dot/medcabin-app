@@ -249,9 +249,16 @@ export async function importInvoices(rows, patientsList) {
                 continue
             }
             
+         // Générer un numéro de facture unique
+            const dateFact = row.date_facture || row.date || new Date().toISOString().split('T')[0]
+            const year = dateFact.substring(0, 4)
+            const uniqueSuffix = Date.now().toString().slice(-6) + i.toString().padStart(2, '0')
+            const numeroFacture = row.numero_facture || row.numero || `${year}-${uniqueSuffix}`
+            
             const invoiceData = {
                 patient_id: patientId,
-                date_facture: row.date_facture || row.date || new Date().toISOString().split('T')[0],
+                numero_facture: numeroFacture,
+                date_facture: dateFact,
                 montant: parseFloat(row.montant || row.amount || 0),
                 statut: row.statut || row.status || 'en_attente',
                 mode_paiement: row.mode_paiement || row.payment_method || null,
