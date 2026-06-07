@@ -7,34 +7,49 @@ import { supabase } from './supabase-client.js'
 export async function getAlerts() {
     const alerts = []
     
-    // ALERTE 1 : Conflits d'horaire aujourd'hui
+    // ALERTE 1 : Conflits d'horaire (aujourd'hui + futurs)
     try {
         const today = new Date().toISOString().split('T')[0]
         const { data } = await supabase
             .from('appointments')
             .select(`*, patient:patients(id, nom, prenom, telephone)`)
-            .eq('date', today)
+            .gte('date', today)
             .neq('statut', 'annule')
+            .order('date', { ascending: true })
             .order('heure_debut', { ascending: true })
         
         if (data) {
-            for (let i = 0; i < data.length; i++) {
-                for (let j = i + 1; j < data.length; j++) {
-                    const a = data[i], b = data[j]
-                    if (a.heure_debut < b.heure_fin && b.heure_debut < a.heure_fin) {
-                        alerts.push({
-                            id: `conflict_${a.id}_${b.id}`,
-                            type: 'conflict',
-                            icon: '⚠️',
-                            title: 'Conflit RDV',
-                            message: `${a.patient?.prenom} ${a.patient?.nom} et ${b.patient?.prenom} ${b.patient?.nom} à ${a.heure_debut.substring(0,5)}`,
-                            phones: [a.patient?.telephone, b.patient?.telephone].filter(Boolean),
-                            link: 'appointments.html',
-                            priority: 'high'
-                        })
+            // Grouper par date
+            const byDate = {}
+            data.forEach(rdv => {
+                if (!byDate[rdv.date]) byDate[rdv.date] = []
+                byDate[rdv.date].push(rdv)
+            })
+            
+            // Détecter chevauchements pour chaque jour
+            Object.keys(byDate).forEach(date => {
+                const rdvs = byDate[date]
+                for (let i = 0; i < rdvs.length; i++) {
+                    for (let j = i + 1; j < rdvs.length; j++) {
+                        const a = rdvs[i], b = rdvs[j]
+                        // Chevauchement réel (pas juste consécutif)
+                        if (a.heure_debut < b.heure_fin && b.heure_debut < a.heure_fin) {
+                            const dateLabel = formatDateLabel(date)
+                            const isToday = date === today
+                            alerts.push({
+                                id: `conflict_${a.id}_${b.id}`,
+                                type: 'conflict',
+                                icon: isToday ? '🚨' : '⚠️',
+                                title: isToday ? `Conflit RDV aujourd'hui` : `Conflit RDV ${dateLabel}`,
+                                message: `${a.patient?.prenom} ${a.patient?.nom} et ${b.patient?.prenom} ${b.patient?.nom} à ${a.heure_debut.substring(0,5)}`,
+                                phones: [a.patient?.telephone, b.patient?.telephone].filter(Boolean),
+                                link: 'appointments.html',
+                                priority: isToday ? 'high' : 'medium'
+                            })
+                        }
                     }
                 }
-            }
+            })
         }
     } catch (e) { console.error('Erreur conflits:', e) }
     
@@ -47,12 +62,13 @@ export async function getAlerts() {
             .limit(5)
         
         if (data && data.length > 0) {
+            const total = data.reduce((sum, inv) => sum + parseFloat(inv.montant || 0), 0)
             alerts.push({
                 id: 'unpaid_invoices',
                 type: 'unpaid',
                 icon: '💰',
                 title: `${data.length} facture(s) impayée(s)`,
-                message: `Total à recouvrer`,
+                message: `Total à recouvrer : ${total.toFixed(0)} DH`,
                 link: 'invoices.html',
                 priority: 'medium'
             })
@@ -96,7 +112,31 @@ export async function getNotifications() {
         }
     } catch (e) { console.error('Erreur RDV imminents:', e) }
     
-    // NOTIF 2 : Nouveaux patients ajoutés aujourd'hui
+    // NOTIF 2 : RDV de demain (résumé)
+    try {
+        const tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+        const tomorrowStr = tomorrow.toISOString().split('T')[0]
+        
+        const { data } = await supabase
+            .from('appointments')
+            .select('id')
+            .eq('date', tomorrowStr)
+            .neq('statut', 'annule')
+        
+        if (data && data.length > 0) {
+            notifications.push({
+                id: `tomorrow_rdv_${tomorrowStr}`,
+                type: 'tomorrow',
+                icon: '📅',
+                title: `${data.length} RDV demain`,
+                message: 'Préparer la journée',
+                link: 'appointments.html'
+            })
+        }
+    } catch (e) { console.error('Erreur RDV demain:', e) }
+    
+    // NOTIF 3 : Nouveaux patients ajoutés aujourd'hui
     try {
         const today = new Date().toISOString().split('T')[0]
         const { data } = await supabase
@@ -117,6 +157,22 @@ export async function getNotifications() {
     } catch (e) { console.error('Erreur nouveaux patients:', e) }
     
     return { success: true, notifications }
+}
+
+// ===== UTILITAIRE : formater la date en label =====
+function formatDateLabel(dateStr) {
+    const date = new Date(dateStr)
+    const today = new Date()
+    today.setHours(0,0,0,0)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    
+    if (date.getTime() === today.getTime()) return "aujourd'hui"
+    if (date.getTime() === tomorrow.getTime()) return "demain"
+    
+    const days = ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam']
+    const months = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc']
+    return `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`
 }
 
 // ===== MARQUER COMME LU (localStorage) =====
