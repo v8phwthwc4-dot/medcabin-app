@@ -10,29 +10,31 @@
 </head>
 <body>
     <div style="display:flex;min-height:100vh">
-        <aside style="width:260px;background:linear-gradient(180deg,#667eea,#764ba2);color:white;padding:2rem 0;position:fixed;height:100vh;overflow-y:auto">
-            <div style="padding:0 1.5rem;margin-bottom:2rem;cursor:pointer" onclick="window.location.href='dashboard.html'"><span style="font-size:2rem">⚕️</span><span style="font-size:1.5rem;font-weight:800;margin-left:0.75rem">MedCabin</span></div>
-            <div style="padding:0 1.5rem;margin-bottom:2rem"><div style="background:rgba(255,255,255,0.1);padding:1rem;border-radius:0.75rem"><div style="font-size:0.875rem;opacity:0.8;margin-bottom:0.25rem">Médecin</div><div style="font-weight:600" id="doctor-name">...</div></div></div>
-            <a href="dashboard.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none;background:rgba(255,255,255,0.2);border-left:4px solid white">📊 Tableau de bord</a>
-            <a href="appointments.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">📅 Rendez-vous</a>
-            <a href="patients.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">👥 Patients</a>
-            <a href="invoices.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">💰 Facturation</a>
-            <a href="prescriptions.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">📝 Ordonnances</a>
-            <a href="custom-fields-settings.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">⚙️ Paramètres</a>
-            <a href="import-data.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">📥 Importer données</a>
-            <a href="manage-data.html" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none">🗑️ Gérer données</a>
+        <aside id="sidebar" style="width:260px;background:linear-gradient(180deg,#667eea,#764ba2);color:white;padding:2rem 0;position:fixed;height:100vh;overflow-y:auto">
+            <div style="padding:0 1.5rem;margin-bottom:2rem;cursor:pointer" onclick="window.location.href='dashboard.html'">
+                <span style="font-size:2rem" id="brand-icon">⚕️</span>
+                <span style="font-size:1.5rem;font-weight:800;margin-left:0.75rem">MedCabin</span>
+            </div>
+            <div style="padding:0 1.5rem;margin-bottom:2rem">
+                <div style="background:rgba(255,255,255,0.1);padding:1rem;border-radius:0.75rem">
+                    <div style="font-size:0.875rem;opacity:0.8;margin-bottom:0.25rem" id="specialty-label">Médecin</div>
+                    <div style="font-weight:600" id="doctor-name">...</div>
+                </div>
+            </div>
+            <nav id="nav-menu"></nav>
             <div style="padding:0 1.5rem;margin-top:2rem"><button onclick="logout()" style="width:100%;padding:0.875rem;background:rgba(255,255,255,0.1);color:white;border:none;border-radius:0.5rem;cursor:pointer;font-weight:600">🚪 Déconnexion</button></div>
         </aside>
         <main style="margin-left:260px;flex:1;padding:2rem">
             
-            <!-- HEADER AVEC BOUTONS NOTIFICATIONS / ALERTES -->
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem">
-                <h1 style="font-size:2rem;font-weight:800;margin:0">👋 Bienvenue sur MedCabin !</h1>
+                <div>
+                    <h1 style="font-size:2rem;font-weight:800;margin:0" id="welcome-title">👋 Bienvenue !</h1>
+                    <p style="color:#64748b;margin:0.25rem 0 0" id="welcome-sub"></p>
+                </div>
                 <div style="display:flex;gap:0.75rem;position:relative">
                     
-                    <!-- BOUTON NOTIFICATIONS -->
                     <div style="position:relative">
-                        <button id="btn-notif" onclick="toggleDropdown('notif')" style="position:relative;width:48px;height:48px;background:white;border:1px solid #e2e8f0;border-radius:0.75rem;cursor:pointer;font-size:1.5rem;box-shadow:0 2px 4px rgba(0,0,0,0.05);transition:all 0.2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <button id="btn-notif" onclick="toggleDropdown('notif')" style="position:relative;width:48px;height:48px;background:white;border:1px solid #e2e8f0;border-radius:0.75rem;cursor:pointer;font-size:1.5rem;box-shadow:0 2px 4px rgba(0,0,0,0.05)">
                             🔔
                             <span id="badge-notif" style="display:none;position:absolute;top:-4px;right:-4px;background:#667eea;color:white;font-size:0.7rem;font-weight:700;min-width:20px;height:20px;border-radius:999px;align-items:center;justify-content:center;padding:0 5px">0</span>
                         </button>
@@ -45,9 +47,8 @@
                         </div>
                     </div>
                     
-                    <!-- BOUTON ALERTES -->
                     <div style="position:relative">
-                        <button id="btn-alert" onclick="toggleDropdown('alert')" style="position:relative;width:48px;height:48px;background:white;border:1px solid #e2e8f0;border-radius:0.75rem;cursor:pointer;font-size:1.5rem;box-shadow:0 2px 4px rgba(0,0,0,0.05);transition:all 0.2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <button id="btn-alert" onclick="toggleDropdown('alert')" style="position:relative;width:48px;height:48px;background:white;border:1px solid #e2e8f0;border-radius:0.75rem;cursor:pointer;font-size:1.5rem;box-shadow:0 2px 4px rgba(0,0,0,0.05)">
                             ⚠️
                             <span id="badge-alert" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;font-size:0.7rem;font-weight:700;min-width:20px;height:20px;border-radius:999px;align-items:center;justify-content:center;padding:0 5px">0</span>
                         </button>
@@ -69,98 +70,157 @@
                 <div style="background:white;padding:1.5rem;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05)"><div style="display:flex;justify-content:space-between"><div><div style="font-size:0.875rem;color:#64748b;margin-bottom:0.5rem">Revenus mois</div><div style="font-size:2rem;font-weight:800;color:#10b981" id="stat-rev">0 DH</div></div><div style="font-size:2rem">💰</div></div></div>
                 <div style="background:white;padding:1.5rem;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05)"><div style="display:flex;justify-content:space-between"><div><div style="font-size:0.875rem;color:#64748b;margin-bottom:0.5rem">Taux occupation</div><div style="font-size:2rem;font-weight:800;color:#f59e0b" id="stat-occ">0%</div></div><div style="font-size:2rem">📊</div></div></div>
             </div>
+            
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:1.5rem;margin-bottom:2rem">
                 <div style="background:white;padding:1.5rem;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05)"><h3 style="margin-bottom:1rem">📈 Consultations (7 jours)</h3><canvas id="chart1"></canvas></div>
                 <div style="background:white;padding:1.5rem;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05)"><h3 style="margin-bottom:1rem">💵 Revenus (6 mois)</h3><canvas id="chart2"></canvas></div>
             </div>
+            
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:1.5rem;margin-bottom:2rem">
                 <div style="background:white;padding:1.5rem;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05)"><h3 style="margin-bottom:1rem">📅 RDV aujourd'hui</h3><div id="rdv-list"></div></div>
                 <div style="background:white;padding:1.5rem;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05)"><h3 style="margin-bottom:1rem">👥 Patients récents</h3><div id="pat-list"></div></div>
             </div>
+            
             <div style="background:white;padding:1.5rem;border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05)">
                 <h3 style="margin-bottom:1rem">⚡ Actions rapides</h3>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
-                    <button onclick="window.location.href='patient-add.html'" style="padding:1rem;background:#667eea;color:white;border:none;border-radius:0.75rem;font-weight:600;cursor:pointer">➕ Nouveau patient</button>
-                    <button onclick="window.location.href='appointment-add.html'" style="padding:1rem;background:#10b981;color:white;border:none;border-radius:0.75rem;font-weight:600;cursor:pointer">📅 Nouveau RDV</button>
-                    <button onclick="window.location.href='prescription-create.html'" style="padding:1rem;background:#8b5cf6;color:white;border:none;border-radius:0.75rem;font-weight:600;cursor:pointer">📝 Nouvelle ordonnance</button>
-                    <button onclick="window.location.href='invoice-create.html'" style="padding:1rem;background:#f59e0b;color:white;border:none;border-radius:0.75rem;font-weight:600;cursor:pointer">💰 Nouvelle facture</button>
-                </div>
+                <div id="quick-actions" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem"></div>
             </div>
         </main>
     </div>
+    
     <script type="module">
-        import{getCurrentUser,signOut}from'./supabase-client.js';
-        import{getDashboardStats,getConsultationsChart,getRevenusChart,formatMontant}from'./dashboard-stats-api.js';
-        import{getAlerts,getNotifications,markAsRead,isRead,clearAllRead}from'./notifications-api.js';
-        import{formatTime}from'./appointments-api.js';
-        import{calculateAge}from'./patients-api.js';
+        import { getCurrentUser, signOut } from './supabase-client.js'
+        import { getDashboardStats, getConsultationsChart, getRevenusChart, formatMontant } from './dashboard-stats-api.js'
+        import { getAlerts, getNotifications, markAsRead, isRead } from './notifications-api.js'
+        import { formatTime } from './appointments-api.js'
+        import { calculateAge } from './patients-api.js'
+        import { getUserProfile } from './profile-api.js'
+        import { getSpecialty } from './specialties-config.js'
         
-        async function load(){
-            const u=await getCurrentUser();
-            if(!u){window.location.href='login.html';return}
-            document.getElementById('doctor-name').textContent=u.user_metadata?.full_name||u.email.split('@')[0];
-            const r=await getDashboardStats();
-            if(r.success){
-                const s=r.stats;
-                document.getElementById('stat-patients').textContent=s.total_patients;
-                document.getElementById('stat-rdv').textContent=s.rdv_today;
-                document.getElementById('stat-rev').textContent=formatMontant(s.revenus_mois);
-                document.getElementById('stat-occ').textContent=s.taux_occupation+'%';
-                document.getElementById('rdv-list').innerHTML=s.rdv_today_list.length?s.rdv_today_list.map(a=>`<div style="padding:0.75rem;border:1px solid #e2e8f0;border-radius:0.5rem;margin-bottom:0.5rem;cursor:pointer" onclick="window.location.href='appointment-detail.html?id=${a.id}'"><div style="font-weight:600">${formatTime(a.heure_debut)}</div><div style="font-size:0.9rem;color:#64748b">${a.motif||'Consultation'}</div></div>`).join(''):'<p style="text-align:center;color:#64748b;padding:2rem">Aucun RDV</p>';
-                document.getElementById('pat-list').innerHTML=s.patients_recents.length?s.patients_recents.map(p=>`<div style="padding:0.75rem;border:1px solid #e2e8f0;border-radius:0.5rem;margin-bottom:0.5rem;cursor:pointer" onclick="window.location.href='patient-detail.html?id=${p.id}'"><div style="font-weight:600">${p.prenom} ${p.nom}</div><div style="font-size:0.9rem;color:#64748b">${calculateAge(p.date_naissance)} ans</div></div>`).join(''):'<p style="text-align:center;color:#64748b;padding:2rem">Aucun patient</p>'
+        // ===== CHARGER LE PROFIL ET ADAPTER L'INTERFACE =====
+        const user = await getCurrentUser()
+        if (!user) { window.location.href = 'login.html' }
+        
+        const profResult = await getUserProfile()
+        if (profResult.needsOnboarding) {
+            window.location.href = 'onboarding.html'
+        }
+        
+        const profile = profResult.profile
+        const specialty = getSpecialty(profile.specialite)
+        
+        // Adapter l'interface à la spécialité
+        document.getElementById('brand-icon').textContent = specialty.icon
+        document.getElementById('specialty-label').textContent = specialty.label
+        document.getElementById('doctor-name').textContent = profile.full_name || user.email.split('@')[0]
+        document.getElementById('welcome-title').innerHTML = `${specialty.icon} Bienvenue, Dr. ${profile.full_name}`
+        document.getElementById('welcome-sub').textContent = `${specialty.label} • Voici votre tableau de bord`
+        
+        // Couleur de la sidebar selon la spécialité
+        document.getElementById('sidebar').style.background = `linear-gradient(180deg,${specialty.color},${darken(specialty.color, 30)})`
+        
+        // Générer le menu selon les modules activés
+        const allModules = [
+            { key:'dashboard', label:'📊 Tableau de bord', href:'dashboard.html', active:true },
+            { key:'appointments', label:'📅 Rendez-vous', href:'appointments.html' },
+            { key:'patients', label:'👥 Patients', href:'patients.html' },
+            { key:'invoices', label:'💰 Facturation', href:'invoices.html' },
+            { key:'prescriptions', label:'📝 Ordonnances', href:'prescriptions.html' },
+            { key:'settings', label:'⚙️ Paramètres', href:'custom-fields-settings.html' },
+            { key:'import', label:'📥 Importer données', href:'import-data.html' },
+            { key:'manage', label:'🗑️ Gérer données', href:'manage-data.html' }
+        ]
+        
+        const enabledModules = specialty.modules
+        const navHtml = allModules.filter(m => 
+            m.key === 'dashboard' || m.key === 'settings' || m.key === 'import' || m.key === 'manage' ||
+            enabledModules.includes(m.key)
+        ).map(m => `
+            <a href="${m.href}" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1.5rem;color:white;text-decoration:none;${m.active ? 'background:rgba(255,255,255,0.2);border-left:4px solid white' : ''}">${m.label}</a>
+        `).join('')
+        document.getElementById('nav-menu').innerHTML = navHtml
+        
+        // Actions rapides adaptées
+        const quickActions = []
+        if (enabledModules.includes('patients')) quickActions.push({ label:'➕ Nouveau patient', href:'patient-add.html', color:specialty.color })
+        if (enabledModules.includes('appointments')) quickActions.push({ label:'📅 Nouveau RDV', href:'appointment-add.html', color:'#10b981' })
+        if (enabledModules.includes('prescriptions')) quickActions.push({ label:'📝 Nouvelle ordonnance', href:'prescription-create.html', color:'#8b5cf6' })
+        if (enabledModules.includes('invoices')) quickActions.push({ label:'💰 Nouvelle facture', href:'invoice-create.html', color:'#f59e0b' })
+        
+        document.getElementById('quick-actions').innerHTML = quickActions.map(a => `
+            <button onclick="window.location.href='${a.href}'" style="padding:1rem;background:${a.color};color:white;border:none;border-radius:0.75rem;font-weight:600;cursor:pointer">${a.label}</button>
+        `).join('')
+        
+        function darken(hex, percent) {
+            const num = parseInt(hex.replace('#',''), 16)
+            const amt = Math.round(2.55 * percent)
+            const R = Math.max(0,(num >> 16) - amt)
+            const G = Math.max(0,(num >> 8 & 0x00FF) - amt)
+            const B = Math.max(0,(num & 0x0000FF) - amt)
+            return '#' + (0x1000000 + R*0x10000 + G*0x100 + B).toString(16).slice(1)
+        }
+        
+        // ===== CHARGER LES STATS =====
+        async function load() {
+            const r = await getDashboardStats()
+            if (r.success) {
+                const s = r.stats
+                document.getElementById('stat-patients').textContent = s.total_patients
+                document.getElementById('stat-rdv').textContent = s.rdv_today
+                document.getElementById('stat-rev').textContent = formatMontant(s.revenus_mois)
+                document.getElementById('stat-occ').textContent = s.taux_occupation + '%'
+                document.getElementById('rdv-list').innerHTML = s.rdv_today_list.length ? s.rdv_today_list.map(a => `<div style="padding:0.75rem;border:1px solid #e2e8f0;border-radius:0.5rem;margin-bottom:0.5rem;cursor:pointer" onclick="window.location.href='appointment-detail.html?id=${a.id}'"><div style="font-weight:600">${formatTime(a.heure_debut)}</div><div style="font-size:0.9rem;color:#64748b">${a.motif||'Consultation'}</div></div>`).join('') : '<p style="text-align:center;color:#64748b;padding:2rem">Aucun RDV</p>'
+                document.getElementById('pat-list').innerHTML = s.patients_recents.length ? s.patients_recents.map(p => `<div style="padding:0.75rem;border:1px solid #e2e8f0;border-radius:0.5rem;margin-bottom:0.5rem;cursor:pointer" onclick="window.location.href='patient-detail.html?id=${p.id}'"><div style="font-weight:600">${p.prenom} ${p.nom}</div><div style="font-size:0.9rem;color:#64748b">${calculateAge(p.date_naissance)} ans</div></div>`).join('') : '<p style="text-align:center;color:#64748b;padding:2rem">Aucun patient</p>'
             }
-            const c1=await getConsultationsChart();
-            if(c1.success){new Chart(document.getElementById('chart1'),{type:'line',data:{labels:c1.data.map(d=>d.label),datasets:[{label:'Consultations',data:c1.data.map(d=>d.count),borderColor:'#667eea',backgroundColor:'rgba(102,126,234,0.1)',tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}})}
-            const c2=await getRevenusChart();
-            if(c2.success){new Chart(document.getElementById('chart2'),{type:'bar',data:{labels:c2.data.map(d=>d.label),datasets:[{label:'Revenus',data:c2.data.map(d=>d.montant),backgroundColor:'#10b981'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}})}
+            const c1 = await getConsultationsChart()
+            if (c1.success) { new Chart(document.getElementById('chart1'), { type:'line', data:{ labels:c1.data.map(d=>d.label), datasets:[{ label:'Consultations', data:c1.data.map(d=>d.count), borderColor:specialty.color, backgroundColor:specialty.color+'20', tension:0.4, fill:true }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}} } }) }
+            const c2 = await getRevenusChart()
+            if (c2.success) { new Chart(document.getElementById('chart2'), { type:'bar', data:{ labels:c2.data.map(d=>d.label), datasets:[{ label:'Revenus', data:c2.data.map(d=>d.montant), backgroundColor:'#10b981' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} } }) }
         }
         
-        window.logout=async()=>{await signOut();window.location.href='login.html'};
+        window.logout = async () => { await signOut(); window.location.href = 'login.html' }
         
-        // ===== SYSTÈME NOTIFICATIONS / ALERTES =====
-        async function loadNotifs(){
-            const a=await getAlerts();
-            const n=await getNotifications();
-            const alerts=(a.alerts||[]).filter(x=>!isRead(x.id));
-            const notifs=(n.notifications||[]).filter(x=>!isRead(x.id));
-            const ba=document.getElementById('badge-alert');
-            const bn=document.getElementById('badge-notif');
-            if(alerts.length>0){ba.textContent=alerts.length;ba.style.display='flex'}else{ba.style.display='none'}
-            if(notifs.length>0){bn.textContent=notifs.length;bn.style.display='flex'}else{bn.style.display='none'}
-            document.getElementById('list-alert').innerHTML=alerts.length?alerts.map(x=>renderItem(x,'alert')).join(''):'<p style="text-align:center;color:#64748b;padding:2rem">Aucune alerte ✅</p>';
-            document.getElementById('list-notif').innerHTML=notifs.length?notifs.map(x=>renderItem(x,'notif')).join(''):'<p style="text-align:center;color:#64748b;padding:2rem">Aucune notification</p>';
+        // ===== NOTIFICATIONS / ALERTES =====
+        async function loadNotifs() {
+            const a = await getAlerts()
+            const n = await getNotifications()
+            const alerts = (a.alerts||[]).filter(x => !isRead(x.id))
+            const notifs = (n.notifications||[]).filter(x => !isRead(x.id))
+            const ba = document.getElementById('badge-alert')
+            const bn = document.getElementById('badge-notif')
+            if (alerts.length > 0) { ba.textContent = alerts.length; ba.style.display = 'flex' } else { ba.style.display = 'none' }
+            if (notifs.length > 0) { bn.textContent = notifs.length; bn.style.display = 'flex' } else { bn.style.display = 'none' }
+            document.getElementById('list-alert').innerHTML = alerts.length ? alerts.map(x => renderItem(x, 'alert')).join('') : '<p style="text-align:center;color:#64748b;padding:2rem">Aucune alerte ✅</p>'
+            document.getElementById('list-notif').innerHTML = notifs.length ? notifs.map(x => renderItem(x, 'notif')).join('') : '<p style="text-align:center;color:#64748b;padding:2rem">Aucune notification</p>'
         }
         
-        function renderItem(item,kind){
-            const bg=kind==='alert'?'#fef2f2':'#f8fafc';
-            const border=kind==='alert'?'#fecaca':'#e2e8f0';
-            const phones=item.phones?item.phones.map(p=>`<a href="tel:${p}" style="color:#667eea;text-decoration:none;font-size:0.85rem;margin-right:0.5rem">📞 ${p}</a>`).join(''):'';
-            return `<div data-id="${item.id}" style="padding:1rem;border-bottom:1px solid ${border};background:${bg};display:flex;gap:0.75rem"><div style="font-size:1.5rem">${item.icon}</div><div style="flex:1"><div style="font-weight:600;margin-bottom:0.25rem">${item.title}</div><div style="font-size:0.875rem;color:#64748b;margin-bottom:0.5rem">${item.message}</div>${phones?`<div style="margin-bottom:0.5rem">${phones}</div>`:''}<div style="display:flex;gap:0.5rem"><a href="${item.link}" style="color:#667eea;text-decoration:none;font-size:0.85rem;font-weight:600">Voir →</a><button onclick="dismissItem('${item.id}')" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:0.85rem">Ignorer</button></div></div></div>`;
+        function renderItem(item, kind) {
+            const bg = kind === 'alert' ? '#fef2f2' : '#f8fafc'
+            const border = kind === 'alert' ? '#fecaca' : '#e2e8f0'
+            const phones = item.phones ? item.phones.map(p => `<a href="tel:${p}" style="color:#667eea;text-decoration:none;font-size:0.85rem;margin-right:0.5rem">📞 ${p}</a>`).join('') : ''
+            return `<div data-id="${item.id}" style="padding:1rem;border-bottom:1px solid ${border};background:${bg};display:flex;gap:0.75rem"><div style="font-size:1.5rem">${item.icon}</div><div style="flex:1"><div style="font-weight:600;margin-bottom:0.25rem">${item.title}</div><div style="font-size:0.875rem;color:#64748b;margin-bottom:0.5rem">${item.message}</div>${phones?`<div style="margin-bottom:0.5rem">${phones}</div>`:''}<div style="display:flex;gap:0.5rem"><a href="${item.link}" style="color:#667eea;text-decoration:none;font-size:0.85rem;font-weight:600">Voir →</a><button onclick="dismissItem('${item.id}')" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:0.85rem">Ignorer</button></div></div></div>`
         }
         
-        window.toggleDropdown=(kind)=>{
-            const me=document.getElementById('dropdown-'+kind);
-            const other=document.getElementById('dropdown-'+(kind==='notif'?'alert':'notif'));
-            other.style.display='none';
-            me.style.display=me.style.display==='none'?'block':'none';
-        };
+        window.toggleDropdown = (kind) => {
+            const me = document.getElementById('dropdown-' + kind)
+            const other = document.getElementById('dropdown-' + (kind === 'notif' ? 'alert' : 'notif'))
+            other.style.display = 'none'
+            me.style.display = me.style.display === 'none' ? 'block' : 'none'
+        }
+        window.clearAll = (kind) => {
+            document.querySelectorAll('#list-' + kind + ' [data-id]').forEach(el => markAsRead(el.dataset.id))
+            loadNotifs()
+        }
+        window.dismissItem = (id) => { markAsRead(id); loadNotifs() }
         
-        window.clearAll=(kind)=>{
-            const items=document.querySelectorAll('#list-'+kind+' [data-id]');
-            items.forEach(el=>markAsRead(el.dataset.id));
-            loadNotifs();
-        };
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#btn-notif') && !e.target.closest('#dropdown-notif')) document.getElementById('dropdown-notif').style.display = 'none'
+            if (!e.target.closest('#btn-alert') && !e.target.closest('#dropdown-alert')) document.getElementById('dropdown-alert').style.display = 'none'
+        })
         
-        window.dismissItem=(id)=>{markAsRead(id);loadNotifs()};
-        
-        document.addEventListener('click',(e)=>{
-            if(!e.target.closest('#btn-notif')&&!e.target.closest('#dropdown-notif')){document.getElementById('dropdown-notif').style.display='none'}
-            if(!e.target.closest('#btn-alert')&&!e.target.closest('#dropdown-alert')){document.getElementById('dropdown-alert').style.display='none'}
-        });
-        
-        load();
-        loadNotifs();
-        setInterval(loadNotifs,60000);
+        load()
+        loadNotifs()
+        setInterval(loadNotifs, 60000)
     </script>
 </body>
 </html>
