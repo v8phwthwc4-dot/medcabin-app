@@ -120,19 +120,7 @@ export async function createAppointment(appointmentData) {
         
         if (!user) throw new Error('Utilisateur non connecté')
         
-        // Vérifier les conflits d'horaire
-        const conflict = await checkTimeConflict(
-            appointmentData.date,
-            appointmentData.heure_debut,
-            appointmentData.heure_fin
-        )
-        
-        if (conflict) {
-            return { 
-                success: false, 
-                error: 'Un rendez-vous existe déjà à cet horaire' 
-            }
-        }
+        // Conflits autorisés (détectés dynamiquement dans le dashboard)
         
         const { data, error } = await supabase
             .from('appointments')
