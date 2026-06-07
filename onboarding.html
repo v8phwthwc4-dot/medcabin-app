@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue - MedCabin</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { margin:0; font-family:'Inter',sans-serif; background:linear-gradient(135deg,#667eea,#764ba2); min-height:100vh; padding:2rem }
+        .container { max-width:800px; margin:0 auto; background:white; border-radius:1.5rem; padding:3rem; box-shadow:0 20px 60px rgba(0,0,0,0.2) }
+        .step { display:none }
+        .step.active { display:block }
+        .specialty-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:1rem; margin-top:1.5rem }
+        .specialty-card { padding:1.25rem 1rem; border:2px solid #e2e8f0; border-radius:0.75rem; cursor:pointer; text-align:center; transition:all 0.2s; background:white }
+        .specialty-card:hover { border-color:#667eea; transform:translateY(-2px); box-shadow:0 8px 20px rgba(102,126,234,0.15) }
+        .specialty-card.selected { border-color:#667eea; background:#eef2ff; box-shadow:0 8px 20px rgba(102,126,234,0.25) }
+        .specialty-card .icon { font-size:2rem; margin-bottom:0.5rem }
+        .specialty-card .label { font-size:0.875rem; font-weight:600; color:#1e293b; line-height:1.3 }
+        .option-card { padding:1.5rem; border:2px solid #e2e8f0; border-radius:0.75rem; cursor:pointer; transition:all 0.2s; margin-bottom:1rem }
+        .option-card:hover { border-color:#667eea }
+        .option-card.selected { border-color:#667eea; background:#eef2ff }
+        .btn-primary { background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:0.875rem 2rem; border:none; border-radius:0.5rem; font-weight:600; cursor:pointer; font-size:1rem }
+        .btn-primary:disabled { opacity:0.5; cursor:not-allowed }
+        .btn-secondary { background:#f1f5f9; color:#475569; padding:0.875rem 2rem; border:none; border-radius:0.5rem; font-weight:600; cursor:pointer; font-size:1rem }
+        .progress { display:flex; gap:0.5rem; margin-bottom:2rem }
+        .progress-dot { flex:1; height:6px; background:#e2e8f0; border-radius:999px; transition:background 0.3s }
+        .progress-dot.active { background:#667eea }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="progress">
+            <div class="progress-dot active" id="dot-1"></div>
+            <div class="progress-dot" id="dot-2"></div>
+            <div class="progress-dot" id="dot-3"></div>
+        </div>
+        
+        <!-- STEP 1 : Bienvenue + Spécialité -->
+        <div class="step active" id="step-1">
+            <h1 style="font-size:2rem;margin:0 0 0.5rem">👋 Bienvenue sur MedCabin !</h1>
+            <p style="color:#64748b;margin-bottom:2rem">Personnalisons votre espace en quelques étapes</p>
+            
+            <h3 style="margin-bottom:0.5rem">Quelle est votre spécialité ?</h3>
+            <p style="color:#64748b;font-size:0.9rem;margin-bottom:0">Nous adapterons l'interface en conséquence</p>
+            
+            <div class="specialty-grid" id="specialty-grid"></div>
+            
+            <div style="display:flex;justify-content:flex-end;margin-top:2rem">
+                <button class="btn-primary" id="btn-next-1" onclick="goToStep(2)" disabled>Suivant →</button>
+            </div>
+        </div>
+        
+        <!-- STEP 2 : Type de pratique -->
+        <div class="step" id="step-2">
+            <h1 style="font-size:2rem;margin:0 0 0.5rem">🏥 Votre cabinet</h1>
+            <p style="color:#64748b;margin-bottom:2rem">Comment exercez-vous ?</p>
+            
+            <div class="option-card" data-practice="solo" onclick="selectPractice('solo')">
+                <div style="display:flex;align-items:center;gap:1rem">
+                    <div style="font-size:2rem">👨‍⚕️</div>
+                    <div>
+                        <div style="font-weight:700;font-size:1.1rem">Cabinet individuel</div>
+                        <div style="color:#64748b;font-size:0.9rem">J'exerce seul(e)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="option-card" data-practice="group" onclick="selectPractice('group')">
+                <div style="display:flex;align-items:center;gap:1rem">
+                    <div style="font-size:2rem">👥</div>
+                    <div>
+                        <div style="font-weight:700;font-size:1.1rem">Cabinet de groupe</div>
+                        <div style="color:#64748b;font-size:0.9rem">Plusieurs praticiens partagent le cabinet</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="option-card" data-practice="clinic" onclick="selectPractice('clinic')">
+                <div style="display:flex;align-items:center;gap:1rem">
+                    <div style="font-size:2rem">🏥</div>
+                    <div>
+                        <div style="font-weight:700;font-size:1.1rem">Clinique / Hôpital</div>
+                        <div style="color:#64748b;font-size:0.9rem">J'exerce dans une structure</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display:flex;justify-content:space-between;margin-top:2rem">
+                <button class="btn-secondary" onclick="goToStep(1)">← Retour</button>
+                <button class="btn-primary" id="btn-next-2" onclick="goToStep(3)" disabled>Suivant →</button>
+            </div>
+        </div>
+        
+        <!-- STEP 3 : Récap + Validation -->
+        <div class="step" id="step-3">
+            <h1 style="font-size:2rem;margin:0 0 0.5rem">✨ Tout est prêt !</h1>
+            <p style="color:#64748b;margin-bottom:2rem">Vérifiez vos informations avant de continuer</p>
+            
+            <div id="recap" style="background:#f8fafc;padding:1.5rem;border-radius:0.75rem;margin-bottom:2rem"></div>
+            
+            <div style="background:#eef2ff;padding:1.25rem;border-radius:0.75rem;border-left:4px solid #667eea;margin-bottom:2rem">
+                <div style="font-weight:700;color:#3730a3;margin-bottom:0.5rem">💡 Ce qui sera adapté pour vous :</div>
+                <div id="adaptations" style="color:#475569;font-size:0.9rem;line-height:1.7"></div>
+            </div>
+            
+            <p style="color:#64748b;font-size:0.85rem;text-align:center;margin-bottom:1.5rem">
+                Vous pourrez modifier ces paramètres à tout moment depuis les ⚙️ Paramètres
+            </p>
+            
+            <div style="display:flex;justify-content:space-between">
+                <button class="btn-secondary" onclick="goToStep(2)">← Retour</button>
+                <button class="btn-primary" id="btn-finish" onclick="finishOnboarding()">🚀 Commencer</button>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { getCurrentUser } from './supabase-client.js'
+        import { getAllSpecialties, getSpecialty } from './specialties-config.js'
+        import { createUserProfile, getUserProfile } from './profile-api.js'
+        
+        let selectedSpecialty = null
+        let selectedPractice = null
+        
+        // Vérifier connexion + redirection si déjà onboardé
+        const user = await getCurrentUser()
+        if (!user) {
+            window.location.href = 'login.html'
+        } else {
+            const prof = await getUserProfile()
+            if (prof.success && prof.profile && prof.profile.onboarding_completed) {
+                window.location.href = 'dashboard.html'
+            }
+        }
+        
+        // Générer les cartes de spécialités
+        const grid = document.getElementById('specialty-grid')
+        const specialties = getAllSpecialties()
+        grid.innerHTML = specialties.map(s => `
+            <div class="specialty-card" data-key="${s.key}" onclick="selectSpecialty('${s.key}')">
+                <div class="icon">${s.icon}</div>
+                <div class="label">${s.label}</div>
+            </div>
+        `).join('')
+        
+        window.selectSpecialty = (key) => {
+            selectedSpecialty = key
+            document.querySelectorAll('.specialty-card').forEach(c => c.classList.remove('selected'))
+            document.querySelector(`[data-key="${key}"]`).classList.add('selected')
+            document.getElementById('btn-next-1').disabled = false
+        }
+        
+        window.selectPractice = (type) => {
+            selectedPractice = type
+            document.querySelectorAll('[data-practice]').forEach(c => c.classList.remove('selected'))
+            document.querySelector(`[data-practice="${type}"]`).classList.add('selected')
+            document.getElementById('btn-next-2').disabled = false
+        }
+        
+        window.goToStep = (step) => {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'))
+            document.getElementById('step-' + step).classList.add('active')
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById('dot-' + i).classList.toggle('active', i <= step)
+            }
+            if (step === 3) showRecap()
+        }
+        
+        function showRecap() {
+            const sp = getSpecialty(selectedSpecialty)
+            const practiceLabels = { solo: 'Cabinet individuel', group: 'Cabinet de groupe', clinic: 'Clinique / Hôpital' }
+            
+            document.getElementById('recap').innerHTML = `
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+                    <div style="font-size:2.5rem">${sp.icon}</div>
+                    <div>
+                        <div style="font-size:1.25rem;font-weight:700">${sp.label}</div>
+                        <div style="color:#64748b">${practiceLabels[selectedPractice]}</div>
+                    </div>
+                </div>
+            `
+            
+            const adaptations = []
+            if (sp.customFields.length > 0) {
+                adaptations.push(`✅ <strong>${sp.customFields.length} champs spécifiques</strong> ajoutés aux fiches patients`)
+            }
+            adaptations.push(`✅ Durée RDV par défaut : <strong>${sp.defaultDuration} minutes</strong>`)
+            adaptations.push(`✅ <strong>${sp.appointmentTypes.length} types de consultation</strong> personnalisés`)
+            adaptations.push(`✅ Dashboard adapté à votre pratique`)
+            
+            document.getElementById('adaptations').innerHTML = adaptations.join('<br>')
+        }
+        
+        window.finishOnboarding = async () => {
+            const btn = document.getElementById('btn-finish')
+            btn.disabled = true
+            btn.textContent = '⏳ Configuration...'
+            
+            const result = await createUserProfile({
+                specialite: selectedSpecialty,
+                practice_type: selectedPractice,
+                full_name: user.user_metadata?.full_name || user.email.split('@')[0],
+                features: {}
+            })
+            
+            if (result.success) {
+                window.location.href = 'dashboard.html'
+            } else {
+                btn.disabled = false
+                btn.textContent = '🚀 Commencer'
+                alert('Erreur : ' + result.error)
+            }
+        }
+    </script>
+</body>
+</html>
